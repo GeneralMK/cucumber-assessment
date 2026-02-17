@@ -139,7 +139,7 @@ This approach is:
 ```properties
 base.url=http://54.198.61.50/web/index.php/auth/login
 username=Admin
-password=admin123
+password=the passowrd
 browser=chrome
 headless=false
 ```
