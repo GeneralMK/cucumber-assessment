@@ -1,6 +1,6 @@
-# HRMS Automation Framework
+# SyntaxHRM Automation Framework Project
 
-A robust **BDD-style UI automation framework** for the HRMS (SyntaxHRM / OrangeHRM-style) web application, built using **Selenium WebDriver, Cucumber, TestNG, and Java**.
+A robust **BDD-style UI automation framework** for the HRM (SyntaxHRM ) web application, built using **Selenium WebDriver, Cucumber, TestNG, and Java**.
 
 The framework is designed with **maintainability, stability, and scalability** in mind, following industry best practices such as the **Page Object Model (POM)**, explicit waits, and scenario-level browser lifecycle management.
 
@@ -139,7 +139,7 @@ This approach is:
 ```properties
 base.url=http://54.198.61.50/web/index.php/auth/login
 username=Admin
-password=admin123
+password=the passowrd
 browser=chrome
 headless=false
 ```
