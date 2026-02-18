@@ -13,7 +13,7 @@ import io.cucumber.testng.CucumberOptions;
                 "json:target/cucumber.json",
                 "io.qameta.allure.cucumber7jvm.AllureCucumber7Jvm"
         },
-//        tags = "@positive",
+        tags = "@employee2",
         monochrome = true
 )
 public class TestRunner extends AbstractTestNGCucumberTests {

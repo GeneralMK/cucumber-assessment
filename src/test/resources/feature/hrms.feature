@@ -40,37 +40,37 @@ Feature: HRMS Portal - Login validation and Employee management
     When I login with valid admin credentials
     Then I should be on the Dashboard page
 
-
   # ---------------------------------------------------------------------------
   # USER STORY 2: Add Employee to HRMS (with/without Employee ID)
   # ---------------------------------------------------------------------------
 
-  @employee @positive
-  Scenario: Add employee without providing Employee ID (system auto-generates ID)
+  @employee1 @positive
+  Scenario Outline: Add employee without providing Employee ID (system auto-generates ID)
     Given I open the HRMS login page
     When I login with valid admin credentials
     And I navigate to PIM module
     And I open Add Employee page
-    And I add a new employee with:
-      | firstName | middleName | lastName |
-      | John      |            | Smith    |
+    And I add a new employee with "<firstName>" and "<lastName>"
 
     And the system should generate an employee id
     And I should be able to find the employee in Employee List by generated employee id
     And the employee record should exist in the database for the generated employee id
 
-  @employee @positive
-  Scenario: Add employee by providing a unique Employee ID
+    Examples:
+      | firstName | lastName |
+      | John      | Smith    |
+
+  @employee2 @positive
+  Scenario Outline: Add employee by providing a unique Employee ID
     Given I open the HRMS login page
     When I login with valid admin credentials
     And I navigate to PIM module
     And I open Add Employee page
-    And I add a new employee with provided id:
-      | firstName | middleName | lastName | employeeId |
-      | Masixole  | Masi       | Kondile  | 900001     |
-
+    And I add a new employee with provided id "<firstName>" "<middleName>" "<lastName>" "<employeeId>"
     And I should be able to find the employee in Employee List by employee id "900001"
-    And the employee record should exist in the database for employee id "900001"
+    Examples:
+      | firstName | middleName | lastName | employeeId |
+      | Masixole  | Masi       | Kondile  | 900003     |
 
   @employee @negative
   Scenario Outline: Add employee should show validation messages for missing required fields

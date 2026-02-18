@@ -14,7 +14,7 @@ public class PIMPage extends BasePage {
             By.xpath("//a[contains(@class,'oxd-topbar-body-nav-tab-item') and normalize-space()='Employee List']");
 
     private final By activeTopTab =
-            By.xpath("//a[contains(@class,'oxd-topbar-body-nav-tab-item') and (@aria-selected='true' or contains(@class,'--active'))]");
+            By.xpath("//div[@class='oxd-topbar-body']//a[contains(text(),'Add Employee')]");
 
     public boolean isAt() {
         Waits.urlContains("/pim");

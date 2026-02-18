@@ -4,6 +4,8 @@ import driver.DriverManager;
 import org.openqa.selenium.*;
 import org.openqa.selenium.interactions.Actions;
 
+import static com.sun.jna.Platform.isMac;
+
 public final class ActionsUtil {
 
     private ActionsUtil(){}
@@ -25,19 +27,81 @@ public final class ActionsUtil {
     }
 
     public static void scrollTo(WebElement el) {
-        ((JavascriptExecutor) DriverManager.getDriver()).executeScript("arguments[0].scrollIntoView({block:'center'});", el);
+        js().executeScript(
+                "arguments[0].scrollIntoView({behavior:'instant', block:'center', inline:'center'});",
+                el
+        );
+    }
+
+    public static void scrollToTopOfElement(WebElement el, int offsetPx) {
+        js().executeScript(
+                "arguments[0].scrollIntoView(true); window.scrollBy(0, -arguments[1]);",
+                el, offsetPx
+        );
+    }
+
+    public static void clearAndType(WebElement el, String text) {
+        WebElement e = Waits.visible(el);
+        scrollTo(e);
+
+        try {
+            e.click();
+            Keys modifier = isMac() ? Keys.COMMAND : Keys.CONTROL;
+
+            e.sendKeys(Keys.chord(modifier, "a"));
+            e.sendKeys(Keys.DELETE);
+
+            // extra safety for stubborn inputs
+            e.sendKeys(Keys.BACK_SPACE);
+
+            // verify cleared
+            if (!e.getAttribute("value").isEmpty()) {
+                throw new RuntimeException("Field not cleared");
+            }
+
+            e.sendKeys(text);
+        } catch (Exception ex) {
+            // fallback: JS + dispatch events
+            jsType(e, "");
+            jsType(e, text);
+        }
+    }
+    public static void scrollInContainer(WebElement container, WebElement target) {
+        js().executeScript(
+                "const c = arguments[0]; const t = arguments[1];" +
+                        "const cRect = c.getBoundingClientRect();" +
+                        "const tRect = t.getBoundingClientRect();" +
+                        "c.scrollTop += (tRect.top - cRect.top) - (cRect.height / 2);",
+                container, target
+        );
+    }
+
+    public static void scrollHorizontally(WebElement container, int pixels) {
+        js().executeScript("arguments[0].scrollLeft = arguments[0].scrollLeft + arguments[1];", container, pixels);
+    }
+
+    public static void wheelScroll(int deltaY) {
+        actions().scrollByAmount(0, deltaY).perform();
     }
 
     public static void jsClick(WebElement el) {
-        ((JavascriptExecutor) DriverManager.getDriver()).executeScript("arguments[0].click();", el);
+        js().executeScript("arguments[0].click();", el);
     }
 
     public static void jsType(WebElement el, String text) {
-        ((JavascriptExecutor) DriverManager.getDriver()).executeScript("arguments[0].value=arguments[1];", el, text);
+        js().executeScript(
+                "arguments[0].value = arguments[1];" +
+                        "arguments[0].dispatchEvent(new Event('input', {bubbles:true}));" +
+                        "arguments[0].dispatchEvent(new Event('change', {bubbles:true}));",
+                el, text
+        );
     }
 
     public static void highlight(WebElement el) {
-        ((JavascriptExecutor) DriverManager.getDriver())
-                .executeScript("arguments[0].style.border='2px solid red';", el);
+        js().executeScript("arguments[0].style.border='2px solid red';", el);
+    }
+
+    private static JavascriptExecutor js() {
+        return (JavascriptExecutor) DriverManager.getDriver();
     }
 }

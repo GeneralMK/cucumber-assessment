@@ -3,6 +3,7 @@ package steps;
 import config.Config;
 import driver.DriverManager;
 import io.cucumber.datatable.DataTable;
+import io.cucumber.java.PendingException;
 import io.cucumber.java.en.*;
 import org.testng.Assert;
 import pages.*;
@@ -17,11 +18,25 @@ public class HrmsSteps {
     // store generated id across steps
     private String generatedEmployeeId;
 
-    private LoginPage loginPage() { return new LoginPage(); }
-    private HomePage dashboardPage() { return new HomePage(); }
-    private PIMPage pimPage() { return new PIMPage(); }
-    private AddEmployeePage addEmployeePage() { return new AddEmployeePage(); }
-    private EmployeeListPage employeeListPage() { return new EmployeeListPage(); }
+    private LoginPage loginPage() {
+        return new LoginPage();
+    }
+
+    private HomePage dashboardPage() {
+        return new HomePage();
+    }
+
+    private PIMPage pimPage() {
+        return new PIMPage();
+    }
+
+    private AddEmployeePage addEmployeePage() {
+        return new AddEmployeePage();
+    }
+
+    private EmployeeListPage employeeListPage() {
+        return new EmployeeListPage();
+    }
 
     @Given("I open the HRMS login page")
     public void i_open_the_hrms_login_page() {
@@ -92,33 +107,6 @@ public class HrmsSteps {
         Assert.assertTrue(pimPage().isOnAddEmployeeTab(), "Not on Add Employee page");
     }
 
-    @When("I add a new employee with:")
-    public void i_add_a_new_employee_with(DataTable table) {
-        List<Map<String, String>> rows = table.asMaps(String.class, String.class);
-        Map<String, String> row = rows.get(0);
-
-        String firstName = row.get("firstName");
-        String middleName = row.get("middleName");
-        String lastName = row.get("lastName");
-
-        addEmployeePage().fillNames(firstName, middleName, lastName);
-        addEmployeePage().clickSave();
-
-        // capture generated id after save
-        generatedEmployeeId = addEmployeePage().getEmployeeIdValue();
-    }
-
-    @When("I add a new employee with provided id:")
-    public void i_add_a_new_employee_with_provided_id(DataTable table) {
-        List<Map<String, String>> rows = table.asMaps(String.class, String.class);
-        Map<String, String> row = rows.get(0);
-
-        addEmployeePage().fillNames(row.get("firstName"), row.get("middleName"), row.get("lastName"));
-        addEmployeePage().setEmployeeId(row.get("employeeId"));
-        addEmployeePage().clickSave();
-    }
-
-
 
     @Then("the system should generate an employee id")
     public void the_system_should_generate_an_employee_id() {
@@ -136,6 +124,8 @@ public class HrmsSteps {
 
     @Then("I should be able to find the employee in Employee List by employee id {string}")
     public void i_should_be_able_to_find_the_employee_in_employee_list_by_employee_id(String employeeId) {
+        addEmployeePage().clickSave();
+
         pimPage().openEmployeeList();
         employeeListPage().searchByEmployeeId(employeeId);
         Assert.assertTrue(employeeListPage().isRecordFoundForEmployeeId(employeeId),
@@ -154,8 +144,33 @@ public class HrmsSteps {
         Assert.assertTrue(true, "DB verification not implemented yet");
     }
 
-    @Then("the employee record should exist in the database for employee id {string}")
-    public void the_employee_record_should_exist_in_the_database_for_employee_id(String employeeId) {
-        Assert.assertTrue(true, "DB verification not implemented yet");
+
+    @And("I add a new employee with {string} and {string}")
+    public void i_add_a_new_employee_with_first_and_last(String firstName, String lastName) {
+
+        // capture generated id (auto-generated scenario)
+        generatedEmployeeId = addEmployeePage().getEmployeeIdValue();
+
+
+        addEmployeePage().enterFirstName(firstName);
+        addEmployeePage().enterLastName(lastName);
+        addEmployeePage().clickSave();
+    }
+
+    @And("I add a new employee with provided id {string} {string} {string} {string}")
+    public void iAddANewEmployeeWithProvidedId(String fname, String lname, String mname, String empId) {
+        addEmployeePage().enterFirstName(fname);
+        addEmployeePage().enterLastName(lname);
+        addEmployeePage().enterMiddleName(mname);
+        addEmployeePage().enterEmployeeId(empId);
+
+        addEmployeePage().clickSave();
+
+        // optionally store it for later assertions
+        generatedEmployeeId = addEmployeePage().getEmployeeIdValue();
+
+
+
+
     }
 }
